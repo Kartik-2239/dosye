@@ -1,6 +1,7 @@
 import os from "os";
 import path from "path";
 import fs from "fs";
+import type { wordData } from "./types.js";
 
 function copilotPath(){
     if (os.platform() === "win32") {
@@ -31,11 +32,11 @@ function getAllJsonlPaths(copilotDir: string, jsonlPaths: string[]) {
 
 
 
-export function getCopilotCount(wordlist: string[]): Record<string, number> | undefined {
+export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const copilotDir = copilotPath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, number> = {};
-    wordlist.forEach(word => countMap[word] = 0);
+    const countMap: Record<string, wordData[]> = {};
+    wordlist.forEach(word => countMap[word] = []);
     if (!fs.existsSync(copilotDir)) {
         console.error("Copilot directory not found. Make sure Copilot is installed and has been run at least once.");
         return;
@@ -52,7 +53,10 @@ export function getCopilotCount(wordlist: string[]): Record<string, number> | un
                     const text: string = parsed.data.content ?? "";
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
-                            countMap[word] += text.toLowerCase().split(word.toLowerCase()).length - 1;
+                            countMap[word].push({
+                                count: text.toLowerCase().split(word.toLowerCase()).length - 1,
+                                time: Date.parse(parsed?.timestamp) ?? 0
+                            });
                         }
                     });
                 }
@@ -63,3 +67,5 @@ export function getCopilotCount(wordlist: string[]): Record<string, number> | un
     })
     return countMap;
 }
+
+// console.log(getCopilotCount(["the", "and", "I"]))

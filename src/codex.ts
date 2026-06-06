@@ -2,6 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import { get } from "http";
+import type { wordData } from "./types.js";
 
 function codexPath(){
     if (os.platform() === "win32") {
@@ -26,11 +27,11 @@ function getAllJsonlPaths(codexDir: string, jsonlPaths: string[]) {
     }
 }
 
-export function getCodexCount(wordlist: string[]): Record<string, number> | undefined {
+export function getCodexCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const codexDir = codexPath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, number> = {};
-    wordlist.forEach(word => countMap[word] = 0);
+    const countMap: Record<string, wordData[]> = {};
+    wordlist.forEach(word => countMap[word] = []);
      if (!fs.existsSync(codexDir)) {
         console.error("Codex directory not found. Make sure Codex is installed and has been run at least once.");
         return;
@@ -47,7 +48,10 @@ export function getCodexCount(wordlist: string[]): Record<string, number> | unde
                     const text: string = parsed.payload.message ?? "";
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
-                            countMap[word] += text.toLowerCase().split(word.toLowerCase()).length - 1;
+                            countMap[word].push({
+                                count: text.toLowerCase().split(word.toLowerCase()).length - 1,
+                                time: Date.parse(parsed?.timestamp) ?? 0 //"2026-02-05T07:03:10.302Z"
+                            });
                         }
                     });
                 }
@@ -58,3 +62,5 @@ export function getCodexCount(wordlist: string[]): Record<string, number> | unde
     })
     return countMap;
 }
+
+// console.log(getCodexCount(["the", "and", "I"]))

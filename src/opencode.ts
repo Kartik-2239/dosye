@@ -1,6 +1,7 @@
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
+import type { wordData } from './types.js';
 
 const homeDir = os.homedir();
 
@@ -52,9 +53,9 @@ function getAllUserMessageIds(): string[] | undefined {
 
 // messageId is of format msg_<sometext>
 // dir/part/msg_<sometext>/part_<sometext>.json
-function getMessageContent(messageId: string): string | undefined {
+function getMessageContent(messageId: string): {text: string, time: number} | undefined {
     if (!messageId.startsWith("msg_")) {
-        return "";
+        return
     }
     const storagePath = openCodePath();
     if (!fs.existsSync(storagePath)) {
@@ -67,34 +68,46 @@ function getMessageContent(messageId: string): string | undefined {
     const files = fs.readdirSync(path.join(partPath, messageId), 'utf-8');
     
     if (files.length === 0) {
-        return "";
+        return
     }
     let text = "";
+    let time = 0;
     files.forEach(file => {
         if (file.endsWith(".json")) {
             const content = fs.readFileSync(path.join(partPath, messageId, file), 'utf-8');
             // text += JSON.parse(content).text; // maybe push the whole json
             if (JSON.parse(content).type === "text") {
-                text += content    
+                text += content
+                if (JSON.parse(content).time){
+                    time = JSON.parse(content).time.start ?? 0
+                }else {
+                    // console.log(`No time found for message ${messageId} in file ${file}`);
+                }
+                
             }
             
         }
     });
-    return text;
+    return { text, time };
 }
 
-export function getOpencodeCount(wordlist: string[]): Record<string, number> {
-    const countMap: Record<string, number> = {};
-    wordlist.forEach(word => countMap[word] = 0);
+export function getOpencodeCount(wordlist: string[]): Record<string, wordData[]> {
+    const countMap: Record<string, wordData[]> = {};
+    wordlist.forEach(word => countMap[word] = []);
     getAllUserMessageIds()?.forEach(messageId => {
         const content = getMessageContent(messageId);
         if (content) {
             wordlist.forEach(word => {
                 if (countMap[word] !== undefined) {
-                    countMap[word] += content.toLowerCase().split(word.toLowerCase()).length - 1;
+                    countMap[word].push({
+                        count: content.text.toLowerCase().split(word.toLowerCase()).length - 1,
+                        time: content.time
+                    });
                 }
             })
         }
     })
     return countMap;
 }
+
+// console.log(getOpencodeCount(["the", "and", "I"]))

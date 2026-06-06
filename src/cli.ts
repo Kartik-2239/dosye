@@ -9,16 +9,16 @@ var curAgents: string[] = []
 const [...args] = process.argv.slice(2);
 
 const options = parseArgs(args, agents);
+if (Object.keys(options).length === 0 || options.help) {
+    handleAgents("--help", agents, words);
+    process.exit(0);
+}
 if (options.words) {
     words = options.words.split(",")
 }
 if (options.agents) {
     curAgents = options.agents?.split(",");
-}else if (options.help) {
-    handleAgents("--help", agents, words);
-    process.exit(0);
 }
 curAgents.forEach(agent => {
     handleAgents(agent, agents, words);
-    process.exit(0)
 });

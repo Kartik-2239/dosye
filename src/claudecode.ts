@@ -1,6 +1,7 @@
 import os from "os";
 import path from "path";
 import fs from "fs";
+import type { wordData } from "./types.js";
 
 function claudecodePath(){
     if (os.platform() === "win32") {
@@ -31,11 +32,11 @@ function getAllJsonlPaths(claudecodeDir: string, jsonlPaths: string[]) {
 
 
 
-export function getClaudeCount(wordlist: string[]): Record<string, number> | undefined {
+export function getClaudeCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const claudecodeDir = claudecodePath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, number> = {};
-    wordlist.forEach(word => countMap[word] = 0);
+    const countMap: Record<string, wordData[]> = {};
+    wordlist.forEach(word => countMap[word] = []);
      if (!fs.existsSync(claudecodeDir)) {
         console.error("Claude directory not found. Make sure Claude is installed and has been run at least once.");
         return;
@@ -52,7 +53,10 @@ export function getClaudeCount(wordlist: string[]): Record<string, number> | und
                     const text: string = parsed.message.content ?? "";
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
-                            countMap[word] += text.toLowerCase().split(word.toLowerCase()).length - 1;
+                            countMap[word].push({
+                                count: text.toLowerCase().split(word.toLowerCase()).length - 1,
+                                time: Date.parse(parsed.timestamp) ?? 0
+                            });
                         }
                     });
                 }
@@ -63,3 +67,6 @@ export function getClaudeCount(wordlist: string[]): Record<string, number> | und
     })
     return countMap;
 }
+
+
+// console.log(getClaudeCount(["the", "and", "I"]))
