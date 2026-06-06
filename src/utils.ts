@@ -6,6 +6,16 @@ import { getClaudeCount } from "./agents/claudecode.js";
 import { getPiCount } from "./agents/pi.js";
 import type { wordData } from "./types.js";
 
+/** Supported AI agents that dosye can analyse. */
+export enum Agent {
+    Opencode = "opencode",
+    Copilot = "copilot",
+    Claudecode = "claudecode",
+    Codex = "codex",
+    Cursor = "cursor",
+    Pi = "pi",
+}
+
 const intensityColorMap: Record<number, any> = {
         0: chalk.rgb(193, 193, 193),
         1: chalk.rgb(74, 209, 254),
@@ -153,32 +163,29 @@ function renderGrapth(counts: Record<string, wordData[]> | undefined) {
 
 
 
-export function handleAgents(command: string, agents: string[], words: string[]) {
+export function handleAgents(command: Agent, words: string[]) {
     switch (command) {
-    case "opencode":
-        logWordCounts("opencode", getOpencodeCount(words));
+    case Agent.Opencode:
+        logWordCounts(Agent.Opencode, getOpencodeCount(words));
         break;
-    case "copilot":
-        logWordCounts("copilot", getCopilotCount(words));
+    case Agent.Copilot:
+        logWordCounts(Agent.Copilot, getCopilotCount(words));
         break;
-    case "codex":
-        logWordCounts("codex", getCodexCount(words));
-        break
-    case "cursor":
+    case Agent.Codex:
+        logWordCounts(Agent.Codex, getCodexCount(words));
+        break;
+    case Agent.Cursor:
         console.log("Coming soon...");
         // Windows: %APPDATA%\Cursor\User\workspaceStorage
         // macOS: ~/Library/Application Support/Cursor/User/workspaceStorage
         // Linux: ~/.config/Cursor/User/workspaceStorage
         break;
-    case "claudecode":
-        logWordCounts("claudecode", getClaudeCount(words));
+    case Agent.Claudecode:
+        logWordCounts(Agent.Claudecode, getClaudeCount(words));
         break;
-    case "pi":
+    case Agent.Pi:
         console.log("Pi does not have a local directory to scan. This command will fetch data from Pi's API in the future.");
-        logWordCounts("pi", getPiCount(words));
+        logWordCounts(Agent.Pi, getPiCount(words));
         break;
-    default:
-        console.error(`Unknown agent: ${command}`);
-        break
-}
+    }
 }

@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 import { Command, Argument } from "commander";
 import { input } from "@inquirer/prompts";
-import { handleAgents } from "./utils.js";
-
-const agents = ["opencode", "copilot", "claudecode", "codex", "cursor", "pi"];
+import { handleAgents, Agent } from "./utils.js";
 
 const program = new Command();
 
@@ -12,7 +10,7 @@ program
     .description("Count word frequencies across local AI chat histories")
     .showHelpAfterError()
     .addArgument(
-        new Argument("<agent...>", "one or more agents to analyze").choices(agents)
+        new Argument("<agent...>", "one or more agents to analyze").choices(Object.values(Agent))
     )
     .option("-w, --words <words>", "comma-separated list of words to count")
     .action(async (agentArgs: string[], options: { words?: string }) => {
@@ -26,7 +24,7 @@ program
             words = splitWords(wordsInput);
         }
 
-        agentArgs.forEach(agent => handleAgents(agent, agents, words));
+        agentArgs.forEach(agent => handleAgents(agent as Agent, words));
     });
 
 program.parse();
