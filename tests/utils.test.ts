@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countWordOccurrences, countWordsInText, initCountMap } from "./utils.js";
+import { countWordOccurrences, countWordsInText, initCountMap } from "../src/utils.js";
 
 describe("countWordOccurrences", () => {
     it("counts a single whole-word match", () => {
