@@ -2,6 +2,8 @@
 
 Count how many times words appear in your local AI chat history.
 
+<image src="assets/dosye.jpg"></image>
+
 ## Supports
 
 - `copilot`
