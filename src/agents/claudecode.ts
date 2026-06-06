@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
+import { findAllJsonlFiles, initCountMap, countWordsInText } from "./utils.js";
 
 function claudecodePath(){
     if (os.platform() === "win32") {
@@ -16,8 +16,7 @@ function claudecodePath(){
 export function getClaudeCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const claudecodeDir = claudecodePath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, wordData[]> = {};
-    wordlist.forEach(word => countMap[word] = []);
+    const countMap = initCountMap(wordlist);
      if (!fs.existsSync(claudecodeDir)) {
         console.error("Claude directory not found. Make sure Claude is installed and has been run at least once.");
         return;
@@ -33,14 +32,7 @@ export function getClaudeCount(wordlist: string[]): Record<string, wordData[]> |
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.message && parsed?.message.role === "user") {
                     const text: string = parsed.message.content ?? "";
-                    wordlist.forEach(word => {
-                        if (countMap[word] !== undefined) {
-                            countMap[word].push({
-                                count: countWordOccurrences(text, word),
-                                time: Date.parse(parsed.timestamp) ?? 0
-                            });
-                        }
-                    });
+                    countWordsInText(text, wordlist, countMap, Date.parse(parsed.timestamp) ?? 0);
                 }
             } catch {
                 

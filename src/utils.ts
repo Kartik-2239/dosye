@@ -35,7 +35,7 @@ export function logWordCounts(agent: string, counts: Record<string, wordData[]> 
     renderScore(Math.floor((((totalCount * 2)/ words) / (totalDays || 1)) * 100));
 
     console.log();
-    
+
     if (!counts) {
         console.log("No data available.");
         return;

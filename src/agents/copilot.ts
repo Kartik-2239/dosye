@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
+import { findAllJsonlFiles, initCountMap, countWordsInText } from "./utils.js";
 
 function copilotPath(){
     if (os.platform() === "win32") {
@@ -18,8 +18,7 @@ function copilotPath(){
 export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const copilotDir = copilotPath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, wordData[]> = {};
-    wordlist.forEach(word => countMap[word] = []);
+    const countMap = initCountMap(wordlist);
     if (!fs.existsSync(copilotDir)) {
         console.error("Copilot directory not found. Make sure Copilot is installed and has been run at least once.");
         return;
@@ -35,14 +34,7 @@ export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> 
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.type === "user.message") {
                     const text: string = parsed.data.content ?? "";
-                    wordlist.forEach(word => {
-                        if (countMap[word] !== undefined) {
-                            countMap[word].push({
-                                count: countWordOccurrences(text, word),
-                                time: Date.parse(parsed?.timestamp) ?? 0
-                            });
-                        }
-                    });
+                    countWordsInText(text, wordlist, countMap, Date.parse(parsed?.timestamp) ?? 0);
                 }
             } catch {
                 

@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import type { wordData } from './../types.js';
-import { countWordOccurrences } from './utils.js';
+import { initCountMap, countWordsInText } from './utils.js';
 
 const homeDir = os.homedir();
 
@@ -101,19 +101,11 @@ function getMessageContent(messageId: string): {text: string, time: number} | un
 }
 
 export function getOpencodeCount(wordlist: string[]): Record<string, wordData[]> {
-    const countMap: Record<string, wordData[]> = {};
-    wordlist.forEach(word => countMap[word] = []);
+    const countMap = initCountMap(wordlist);
     getAllUserMessageIds()?.forEach(messageId => {
         const content = getMessageContent(messageId);
         if (content) {
-            wordlist.forEach(word => {
-                if (countMap[word] !== undefined) {
-                    countMap[word].push({
-                        count: countWordOccurrences(content.text, word),
-                        time: content.time
-                    });
-                }
-            })
+            countWordsInText(content.text, wordlist, countMap, content.time);
         }
     })
     return countMap;
