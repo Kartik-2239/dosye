@@ -32,10 +32,10 @@ export function getCodexCount(wordlist: string[]): Record<string, wordData[]> | 
     findAllJsonlFiles(path.join(codexDir, "sessions"), jsonlPaths, "codex");
     jsonlPaths.forEach(jsonlPath => {
         const content = fs.readFileSync(jsonlPath, "utf-8");
-        const jsonFiles = content.trim().split("\n")
-        jsonFiles.forEach(jsonFile => {
+        const lines = content.trim().split("\n");
+        lines.forEach(line => {
             try {
-                const parsed = JSON.parse(jsonFile.trim());
+                const parsed = JSON.parse(line.trim());
                 if (parsed?.payload?.type === "user_message") {
                     const text: string = parsed.payload.message ?? "";
                     countWordsInText(text, wordlist, countMap, Date.parse(parsed?.timestamp) ?? 0);

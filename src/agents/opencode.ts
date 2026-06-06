@@ -43,23 +43,23 @@ function getAllUserMessageIds(): string[] | undefined {
         return
     }
     const sessions = fs.readdirSync(path.join(storagePath, "message"));
-    sessions.forEach(file => {
-        if (!fs.statSync(path.join(storagePath, "message", file)).isDirectory()) {
+    sessions.forEach(sessionDir => {
+        if (!fs.statSync(path.join(storagePath, "message", sessionDir)).isDirectory()) {
             return;
         }
         var messages: string[];
         try {
-            messages = fs.readdirSync(path.join(storagePath, "message", file));
+            messages = fs.readdirSync(path.join(storagePath, "message", sessionDir));
         } catch (error) {
-            console.error(`Error reading messages for session ${file}:`, error);
+            console.error(`Error reading messages for session ${sessionDir}:`, error);
             return;
         }
-        
+
         messages.forEach(message => {
             if (message.endsWith(".json") === false) {
                 return;
             }
-            const messagePath = path.join(storagePath, "message", file, message);
+            const messagePath = path.join(storagePath, "message", sessionDir, message);
             const content = fs.readFileSync(messagePath, 'utf-8');
             // if (JSON.parse(content)?.role === "user") {
                 // idk why this didn't work

@@ -171,12 +171,12 @@ function renderGrapth(counts: Record<string, wordData[]> | undefined) {
 
 
 /**
- * Dispatch word counting to the correct agent module and print results.
- * @param command - The agent to run (must be a value of the `Agent` enum).
- * @param words   - Words to count across that agent's history.
+ * Dispatch to the appropriate agent analyser and print results.
+ * @param agent - The agent to run, validated against the {@link Agent} enum.
+ * @param words - List of words whose frequencies to count.
  */
-export function handleAgents(command: Agent, words: string[]) {
-    switch (command) {
+export function handleAgents(agent: Agent, words: string[]) {
+    switch (agent) {
     case Agent.Opencode:
         logWordCounts(Agent.Opencode, getOpencodeCount(words));
         break;
