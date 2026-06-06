@@ -152,40 +152,9 @@ function renderGrapth(counts: Record<string, wordData[]> | undefined) {
 }
 
 
-export function parseArgs(args: string[], agents: string[] = []): Record<string, string> {
-    const result: Record<string, string> = {};
-    const curAgents: string[] = []
-    if (args.length === 0) {
-        return result;
-    }
-    args = args.join(" ").replace(", ", ",").split(" ");
-    args.forEach(arg => {
-        const [key, value] = arg.split("=");
-        if (key && value) {
-            result[key.replace(/^--/, "")] = value;
-        }
-        if (agents.includes(arg)) {
-            curAgents.push(arg);
-        }
-        if (arg === "--help") {
-            result["help"] = "true";
-        }
-    });
-    if (curAgents.length > 0) {
-        result["agents"] = curAgents.join(",");
-    }
-    return result;
-}
-
 
 export function handleAgents(command: string, agents: string[], words: string[]) {
     switch (command) {
-    case "--help":
-        console.log("Usage: dosye <command> <options>");
-        console.log("--words=word1,word2,...   Specify a comma-separated list of words")
-        console.log("Commands:");
-        agents.forEach(agent => console.log(`  - ${agent}`));
-        break;
     case "opencode":
         logWordCounts("opencode", getOpencodeCount(words));
         break;
@@ -209,11 +178,7 @@ export function handleAgents(command: string, agents: string[], words: string[])
         logWordCounts("pi", getPiCount(words));
         break;
     default:
-        console.log(`Unknown command: ${command}`);
-        console.log("Usage: dosye <command> <options>");
-        console.log("--words=word1,word2,...   Specify a comma-separated list of words")
-        console.log("Commands:");
-        agents.forEach(agent => console.log(`  - ${agent}`));
+        console.error(`Unknown agent: ${command}`);
         break
 }
 }

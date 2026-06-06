@@ -1,44 +1,35 @@
 #!/usr/bin/env node
-import { checkbox, input } from "@inquirer/prompts";
+import { Command, Argument } from "commander";
+import { input } from "@inquirer/prompts";
 import { handleAgents } from "./utils.js";
-import { parseArgs } from "./utils.js";
 
-const agents = ["opencode", "copilot", "claudecode", "codex", "cursor", "pi"]
-// add antigravity ~/.gemini/antigravity-cli/history.jsonl only has user text lol
-let words: string[] = []
-let curAgents: string[] = []
+const agents = ["opencode", "copilot", "claudecode", "codex", "cursor", "pi"];
 
-const [...args] = process.argv.slice(2);
+const program = new Command();
 
-const options = parseArgs(args, agents);
-if (options.help) {
-    handleAgents("--help", agents, words);
-    process.exit(0);
-}
-if (options.words) {
-    words = splitWords(options.words)
-}
-if (options.agents) {
-    curAgents = options.agents?.split(",");
-}
+program
+    .name("dosye")
+    .description("Count word frequencies across local AI chat histories")
+    .showHelpAfterError()
+    .addArgument(
+        new Argument("<agent...>", "one or more agents to analyze").choices(agents)
+    )
+    .option("-w, --words <words>", "comma-separated list of words to count")
+    .action(async (agentArgs: string[], options: { words?: string }) => {
+        let words = options.words ? splitWords(options.words) : [];
 
-if (curAgents.length === 0) {
-    curAgents = await checkbox({
-        message: "Agents to scan:",
-        choices: agents.map(agent => ({ name: agent, value: agent })),
-        validate: selected => selected.length > 0 || "Select at least one agent.",
+        if (words.length === 0) {
+            const wordsInput = await input({
+                message: "Words to scan for (comma separated):",
+                validate: value => splitWords(value).length > 0 || "Enter at least one word.",
+            });
+            words = splitWords(wordsInput);
+        }
+
+        agentArgs.forEach(agent => handleAgents(agent, agents, words));
     });
-}
 
-if (words.length === 0) {
-    const wordsInput = await input({
-        message: "Words to scan for (comma separated):",
-        validate: value => splitWords(value).length > 0 || "Enter at least one word.",
-    });
-    words = splitWords(wordsInput);
-}
-
-curAgents.forEach(agent => handleAgents(agent, agents, words));
+program.parse();
 
 function splitWords(value: string) {
     return value
