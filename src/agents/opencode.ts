@@ -6,8 +6,12 @@ import { initCountMap, countWordsInText } from './utils.js';
 
 const homeDir = os.homedir();
 
-// %LOCALAPPDATA%\opencode\opencode.db
-// ~/.local/share/opencode/opencode.db
+/**
+ * Resolve the platform-specific OpenCode storage directory.
+ * Checks `OPENCODE_DATA_DIR`, then `XDG_DATA_HOME`, then platform defaults.
+ * Windows: `%LOCALAPPDATA%\opencode\storage`
+ * macOS/Linux: `~/.local/share/opencode/storage`
+ */
 function openCodePath():string{
     const overrideDir = process.env.OPENCODE_DATA_DIR;
     if (overrideDir) {
@@ -26,6 +30,12 @@ function openCodePath():string{
     return dbPath;
 }
 
+/**
+ * Collect all message IDs from the `storage/message/` directory tree.
+ * Each subdirectory is a session; each `.json` file within is a message.
+ * @returns Array of message ID strings (filenames without `.json`), or `undefined`
+ *   if the storage directory does not exist.
+ */
 function getAllUserMessageIds(): string[] | undefined {
     const storagePath = openCodePath();
     const messageIds: string[] = [];
@@ -60,8 +70,13 @@ function getAllUserMessageIds(): string[] | undefined {
     return messageIds;
 }
 
-// messageId is of format msg_<sometext>
-// dir/part/msg_<sometext>/part_<sometext>.json
+/**
+ * Read and concatenate text part content for a given message ID.
+ * Parts are stored at `storage/part/{messageId}/part_*.json`; only entries
+ * with `type === "text"` are included. Also captures the earliest `time.start` value.
+ * @param messageId - Message ID in the format `msg_<sometext>`.
+ * @returns `{text, time}` for the message, or `undefined` if the message cannot be found.
+ */
 function getMessageContent(messageId: string): {text: string, time: number} | undefined {
     if (!messageId.startsWith("msg_")) {
         return
@@ -100,6 +115,12 @@ function getMessageContent(messageId: string): {text: string, time: number} | un
     return { text, time };
 }
 
+/**
+ * Count whole-word occurrences of each word in OpenCode chat history.
+ * Reads text parts from `storage/part/{messageId}/` for each user message ID.
+ * @param wordlist - Words to count.
+ * @returns Map of word → time-series `wordData[]` entries.
+ */
 export function getOpencodeCount(wordlist: string[]): Record<string, wordData[]> {
     const countMap = initCountMap(wordlist);
     getAllUserMessageIds()?.forEach(messageId => {

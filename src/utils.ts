@@ -23,6 +23,13 @@ const intensityColorMap: Record<number, any> = {
         3: chalk.rgb(0, 71, 125)
     }
 
+/**
+ * Print word counts and an activity graph for an agent to stdout.
+ * Shows a score bar, first-scan date, per-word totals, and a 12-month
+ * GitHub-style contribution calendar derived from the time-series data.
+ * @param agent  - Agent name used in the header line.
+ * @param counts - Map of word → `wordData[]` entries, or `undefined` if unavailable.
+ */
 export function logWordCounts(agent: string, counts: Record<string, wordData[]> | undefined) {
     // console.log("counts: ", counts)
     console.log()
@@ -163,6 +170,11 @@ function renderGrapth(counts: Record<string, wordData[]> | undefined) {
 
 
 
+/**
+ * Dispatch word counting to the correct agent module and print results.
+ * @param command - The agent to run (must be a value of the `Agent` enum).
+ * @param words   - Words to count across that agent's history.
+ */
 export function handleAgents(command: Agent, words: string[]) {
     switch (command) {
     case Agent.Opencode:
