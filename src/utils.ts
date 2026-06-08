@@ -14,7 +14,7 @@ const intensityColorMap: Record<number, any> = {
     }
 
 export function logWordCounts(agent: string, counts: Record<string, wordData[]> | undefined) {
-    console.log("counts: ", counts)
+    // console.log("counts: ", counts)
     console.log()
     const words = Object.keys(counts ?? {}).length;
     console.log(` Scanned ${words} words\n`)
