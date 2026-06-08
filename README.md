@@ -12,6 +12,11 @@ Count how many times words appear in your local AI chat history.
 - `opencode`
 - `cursor` (not implemented yet)
 
+## Use with `npx`
+```bash
+npx dosye-ai@latest <agent> --words=word1,word2,...
+```
+
 ## Quick start
 
 ```bash

@@ -1,6 +1,7 @@
 {
-  "name": "dosye",
+  "name": "dosye-ai",
   "version": "0.0.1",
+  "author": "@notkartikk",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -13,7 +14,6 @@
   },
   "type": "module",
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.14.0",
   "devDependencies": {
