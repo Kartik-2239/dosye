@@ -1,9 +1,8 @@
 import os from "os";
 import path from "path";
 import fs from "fs";
-import { get } from "http";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles } from "./utils.js";
+import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
 
 function codexPath(){
     if (os.platform() === "win32") {
@@ -35,7 +34,7 @@ export function getCodexCount(wordlist: string[]): Record<string, wordData[]> | 
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
                             countMap[word].push({
-                                count: text.toLowerCase().split(word.toLowerCase()).length - 1,
+                                count: countWordOccurrences(text, word),
                                 time: Date.parse(parsed?.timestamp) ?? 0 //"2026-02-05T07:03:10.302Z"
                             });
                         }

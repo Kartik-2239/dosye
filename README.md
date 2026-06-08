@@ -31,8 +31,18 @@ For development:
 pnpm dev -- copilot --words=fix,bug
 ```
 
+Run the tests:
+
+```bash
+pnpm test
+```
+
 Usage:
 ```bash
 <command> <agent> --words=word1,word2,word3
 ```
+
+## License
+
+[ISC](./LICENSE)
 

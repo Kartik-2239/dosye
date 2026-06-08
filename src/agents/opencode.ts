@@ -2,6 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import type { wordData } from './../types.js';
+import { countWordOccurrences } from './utils.js';
 
 const homeDir = os.homedir();
 
@@ -100,7 +101,7 @@ export function getOpencodeCount(wordlist: string[]): Record<string, wordData[]>
             wordlist.forEach(word => {
                 if (countMap[word] !== undefined) {
                     countMap[word].push({
-                        count: content.text.toLowerCase().split(word.toLowerCase()).length - 1,
+                        count: countWordOccurrences(content.text, word),
                         time: content.time
                     });
                 }

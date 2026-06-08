@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles } from "./utils.js";
+import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
 
 function copilotPath(){
     if (os.platform() === "win32") {
@@ -38,7 +38,7 @@ export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> 
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
                             countMap[word].push({
-                                count: text.toLowerCase().split(word.toLowerCase()).length - 1,
+                                count: countWordOccurrences(text, word),
                                 time: Date.parse(parsed?.timestamp) ?? 0
                             });
                         }
