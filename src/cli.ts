@@ -2,7 +2,7 @@
 import { handleAgents } from "./utils.js";
 import { parseArgs } from "./utils.js";
 
-const agents = ["opencode", "copilot", "claudecode", "codex", "cursor"]
+const agents = ["opencode", "copilot", "claudecode", "codex", "cursor", "pi"]
 var words: string[] = []
 var curAgents: string[] = []
 

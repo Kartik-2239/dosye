@@ -1,8 +1,9 @@
 import chalk from "chalk";
-import { getOpencodeCount } from "./opencode.js";
-import { getCodexCount } from "./codex.js";
-import { getCopilotCount } from "./copilot.js";
-import { getClaudeCount } from "./claudecode.js";
+import { getOpencodeCount } from "./agents/opencode.js";
+import { getCodexCount } from "./agents/codex.js";
+import { getCopilotCount } from "./agents/copilot.js";
+import { getClaudeCount } from "./agents/claudecode.js";
+import { getPiCount } from "./agents/pi.js";
 import type { wordData } from "./types.js";
 
 const intensityColorMap: Record<number, any> = {
@@ -13,6 +14,7 @@ const intensityColorMap: Record<number, any> = {
     }
 
 export function logWordCounts(agent: string, counts: Record<string, wordData[]> | undefined) {
+    console.log("counts: ", counts)
     console.log()
     const words = Object.keys(counts ?? {}).length;
     console.log(` Scanned ${words} words\n`)
@@ -202,6 +204,10 @@ export function handleAgents(command: string, agents: string[], words: string[])
     case "claudecode":
         logWordCounts("claudecode", getClaudeCount(words));
         break;
+    case "pi":
+        console.log("Pi does not have a local directory to scan. This command will fetch data from Pi's API in the future.");
+        logWordCounts("pi", getPiCount(words));
+        break;
     default:
         console.log(`Unknown command: ${command}`);
         console.log("Usage: dosye <command> <options>");
@@ -210,5 +216,4 @@ export function handleAgents(command: string, agents: string[], words: string[])
         agents.forEach(agent => console.log(`  - ${agent}`));
         break
 }
-
 }
