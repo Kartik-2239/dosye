@@ -8,9 +8,17 @@ const homeDir = os.homedir();
 // %LOCALAPPDATA%\opencode\opencode.db
 // ~/.local/share/opencode/opencode.db
 function openCodePath():string{
+    const overrideDir = process.env.OPENCODE_DATA_DIR;
+    if (overrideDir) {
+        return path.join(overrideDir, 'storage');
+    }
     var dbPath: string;
+    const xdgDataHome = process.env.XDG_DATA_HOME;
+    if (xdgDataHome) {
+        dbPath = path.join(xdgDataHome, "opencode", "storage");
+    }
     if (os.platform() === "win32") {
-    dbPath = path.join(process.env.LOCALAPPDATA || '', "opencode", "storage");
+        dbPath = path.join(process.env.LOCALAPPDATA || os.userInfo().homedir, "opencode", "storage");
     }else {
         dbPath = path.join(homeDir, ".local", "share", "opencode", "storage");
     }

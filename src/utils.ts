@@ -25,12 +25,12 @@ export function logWordCounts(agent: string, counts: Record<string, wordData[]> 
     let totalDays = 0;
     let totalCount = Object.values(counts ?? {}).reduce((acc, data) => acc + data.reduce((a, d) => a + d.count, 0), 0);
     if (key1 !== undefined && counts) {
-        const t = counts[key1]?.sort((a, b) => a.time -  b.time)[0]?.time;
+        const t = counts[key1]?.sort((a, b) => a.time -  b.time)[0]?.time//.reduce()//[0]?.time;
         if (t) {
             totalDays = (Date.now() - t) / (1000 * 60 * 60 * 24);
+            console.log(` First scanned data from ${new Date(t).toLocaleDateString()} (${Math.floor(totalDays)} days ago)\n`)
         }
     }
-
 
     renderScore(Math.floor((((totalCount * 2)/ words) / (totalDays || 1)) * 100));
 
@@ -156,9 +156,9 @@ export function parseArgs(args: string[], agents: string[] = []): Record<string,
     const result: Record<string, string> = {};
     const curAgents: string[] = []
     if (args.length === 0) {
-        result["help"] = "true";
         return result;
     }
+    args = args.join(" ").replace(", ", ",").split(" ");
     args.forEach(arg => {
         const [key, value] = arg.split("=");
         if (key && value) {
