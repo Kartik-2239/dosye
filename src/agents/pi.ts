@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles } from "./utils.js";
+import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
 
 function piPath(){
     if (os.platform() === "win32") {
@@ -35,7 +35,7 @@ export function getPiCount(wordlist: string[]): Record<string, wordData[]> | und
                     wordlist.forEach(word => {
                         if (countMap[word] !== undefined) {
                             countMap[word].push({
-                                count: text.map(t => t.text).join(" ").toLowerCase().split(word.toLowerCase()).length - 1,
+                                count: countWordOccurrences(text.map(t => t.text).join(" "), word),
                                 time: Date.parse(parsed.timestamp) ?? 0
                             });
                         }

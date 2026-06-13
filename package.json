@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "tsx src/cli.ts",
     "run": "node dist/cli.js",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "type": "module",
   "keywords": [],
@@ -19,7 +20,8 @@
   "devDependencies": {
     "@types/node": "^25.9.1",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
