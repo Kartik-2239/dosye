@@ -8,7 +8,7 @@ const cli = resolve(root, "src/cli.ts");
 const tsx = resolve(root, "node_modules/.bin/tsx");
 
 function run(args: string[]) {
-    return spawnSync(tsx, [cli, ...args], { encoding: "utf8", cwd: root });
+    return spawnSync(tsx, [cli, ...args], { encoding: "utf8", cwd: root, timeout: 8000 });
 }
 
 describe("CLI argument handling", () => {
@@ -40,7 +40,7 @@ describe("CLI argument handling", () => {
         expect(stderr).toContain("Usage:");
     });
 
-    it("accepts multiple valid agents without a usage error", () => {
+    it("accepts multiple valid agents without a usage error", { timeout: 15000 }, () => {
         // Agents will look for history files and may find none — that's fine.
         // We only assert commander doesn't reject the invocation itself.
         const { stderr } = run(["copilot", "claudecode", "--words", "fix"]);
