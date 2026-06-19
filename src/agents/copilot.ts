@@ -2,8 +2,9 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
+import { findAllJsonlFiles, initCountMap, countWordsInText } from "./utils.js";
 
+/** Resolve the platform-specific GitHub Copilot config directory. */
 function copilotPath(){
     if (os.platform() === "win32") {
         return path.join(process.env.USERPROFILE || os.homedir(), ".copilot");
@@ -15,11 +16,17 @@ function copilotPath(){
 
 
 
+/**
+ * Count whole-word occurrences of each word in GitHub Copilot chat history.
+ * Reads user messages from .jsonl files under `~/.copilot/session-state/` where
+ * `type === "user.message"`, extracting text from `data.content`.
+ * @param wordlist - Words to count.
+ * @returns Map of word → time-series `wordData[]` entries, or `undefined` if the directory is missing.
+ */
 export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const copilotDir = copilotPath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, wordData[]> = {};
-    wordlist.forEach(word => countMap[word] = []);
+    const countMap = initCountMap(wordlist);
     if (!fs.existsSync(copilotDir)) {
         console.error("Copilot directory not found. Make sure Copilot is installed and has been run at least once.");
         return;
@@ -35,14 +42,8 @@ export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> 
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.type === "user.message") {
                     const text: string = parsed.data.content ?? "";
-                    wordlist.forEach(word => {
-                        if (countMap[word] !== undefined) {
-                            countMap[word].push({
-                                count: countWordOccurrences(text, word),
-                                time: Date.parse(parsed?.timestamp) ?? 0
-                            });
-                        }
-                    });
+                    const time = Date.parse(parsed?.timestamp);
+                    countWordsInText(text, wordlist, countMap, Number.isNaN(time) ? 0 : time);
                 }
             } catch {
                 

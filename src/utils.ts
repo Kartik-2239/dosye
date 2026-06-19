@@ -6,6 +6,16 @@ import { getClaudeCount } from "./agents/claudecode.js";
 import { getPiCount } from "./agents/pi.js";
 import type { wordData } from "./types.js";
 
+/** Supported AI agents that dosye can analyse. */
+export enum Agent {
+    Opencode = "opencode",
+    Copilot = "copilot",
+    Claudecode = "claudecode",
+    Codex = "codex",
+    Cursor = "cursor",
+    Pi = "pi",
+}
+
 const intensityColorMap: Record<number, any> = {
         0: chalk.rgb(193, 193, 193),
         1: chalk.rgb(74, 209, 254),
@@ -13,6 +23,13 @@ const intensityColorMap: Record<number, any> = {
         3: chalk.rgb(0, 71, 125)
     }
 
+/**
+ * Print word counts and an activity graph for an agent to stdout.
+ * Shows a score bar, first-scan date, per-word totals, and a 12-month
+ * GitHub-style contribution calendar derived from the time-series data.
+ * @param agent  - Agent name used in the header line.
+ * @param counts - Map of word → `wordData[]` entries, or `undefined` if unavailable.
+ */
 export function logWordCounts(agent: string, counts: Record<string, wordData[]> | undefined) {
     // console.log("counts: ", counts)
     console.log()
@@ -35,7 +52,7 @@ export function logWordCounts(agent: string, counts: Record<string, wordData[]> 
     renderScore(Math.floor((((totalCount * 2)/ words) / (totalDays || 1)) * 100));
 
     console.log();
-    
+
     if (!counts) {
         console.log("No data available.");
         return;
@@ -152,68 +169,38 @@ function renderGrapth(counts: Record<string, wordData[]> | undefined) {
 }
 
 
-export function parseArgs(args: string[], agents: string[] = []): Record<string, string> {
-    const result: Record<string, string> = {};
-    const curAgents: string[] = []
-    if (args.length === 0) {
-        return result;
-    }
-    args = args.join(" ").replace(", ", ",").split(" ");
-    args.forEach(arg => {
-        const [key, value] = arg.split("=");
-        if (key && value) {
-            result[key.replace(/^--/, "")] = value;
-        }
-        if (agents.includes(arg)) {
-            curAgents.push(arg);
-        }
-        if (arg === "--help") {
-            result["help"] = "true";
-        }
-    });
-    if (curAgents.length > 0) {
-        result["agents"] = curAgents.join(",");
-    }
-    return result;
-}
 
-
-export function handleAgents(command: string, agents: string[], words: string[]) {
-    switch (command) {
-    case "--help":
-        console.log("Usage: dosye <command> <options>");
-        console.log("--words=word1,word2,...   Specify a comma-separated list of words")
-        console.log("Commands:");
-        agents.forEach(agent => console.log(`  - ${agent}`));
+/**
+ * Dispatch to the appropriate agent analyser and print results.
+ * @param agent - The agent to run, validated against the {@link Agent} enum.
+ * @param words - List of words whose frequencies to count.
+ */
+export function handleAgents(agent: Agent, words: string[]) {
+    switch (agent) {
+    case Agent.Opencode:
+        logWordCounts(Agent.Opencode, getOpencodeCount(words));
         break;
-    case "opencode":
-        logWordCounts("opencode", getOpencodeCount(words));
+    case Agent.Copilot:
+        logWordCounts(Agent.Copilot, getCopilotCount(words));
         break;
-    case "copilot":
-        logWordCounts("copilot", getCopilotCount(words));
+    case Agent.Codex:
+        logWordCounts(Agent.Codex, getCodexCount(words));
         break;
-    case "codex":
-        logWordCounts("codex", getCodexCount(words));
-        break
-    case "cursor":
+    case Agent.Cursor:
         console.log("Coming soon...");
         // Windows: %APPDATA%\Cursor\User\workspaceStorage
         // macOS: ~/Library/Application Support/Cursor/User/workspaceStorage
         // Linux: ~/.config/Cursor/User/workspaceStorage
         break;
-    case "claudecode":
-        logWordCounts("claudecode", getClaudeCount(words));
+    case Agent.Claudecode:
+        logWordCounts(Agent.Claudecode, getClaudeCount(words));
         break;
-    case "pi":
+    case Agent.Pi:
         console.log("Pi does not have a local directory to scan. This command will fetch data from Pi's API in the future.");
-        logWordCounts("pi", getPiCount(words));
+        logWordCounts(Agent.Pi, getPiCount(words));
         break;
     default:
-        console.log(`Unknown command: ${command}`);
-        console.log("Usage: dosye <command> <options>");
-        console.log("--words=word1,word2,...   Specify a comma-separated list of words")
-        console.log("Commands:");
-        agents.forEach(agent => console.log(`  - ${agent}`));
-        break
-}
+        console.error(`Unknown agent: ${agent}`);
+        break;
+    }
 }
