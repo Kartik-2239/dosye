@@ -27,7 +27,7 @@ program
         agentArgs.forEach(agent => handleAgents(agent as Agent, words));
     });
 
-program.parse();
+program.parseAsync().catch(() => process.exit(1));
 
 function splitWords(value: string) {
     return value

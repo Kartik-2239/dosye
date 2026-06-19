@@ -40,7 +40,8 @@ export function getClaudeCount(wordlist: string[]): Record<string, wordData[]> |
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.message && parsed?.message.role === "user") {
                     const text: string = parsed.message.content ?? "";
-                    countWordsInText(text, wordlist, countMap, Date.parse(parsed.timestamp) ?? 0);
+                    const time = Date.parse(parsed.timestamp);
+                    countWordsInText(text, wordlist, countMap, Number.isNaN(time) ? 0 : time);
                 }
             } catch {
                 

@@ -38,7 +38,8 @@ export function getCodexCount(wordlist: string[]): Record<string, wordData[]> | 
                 const parsed = JSON.parse(line.trim());
                 if (parsed?.payload?.type === "user_message") {
                     const text: string = parsed.payload.message ?? "";
-                    countWordsInText(text, wordlist, countMap, Date.parse(parsed?.timestamp) ?? 0);
+                    const time = Date.parse(parsed?.timestamp);
+                    countWordsInText(text, wordlist, countMap, Number.isNaN(time) ? 0 : time);
                 }
             } catch {
                

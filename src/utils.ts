@@ -199,5 +199,8 @@ export function handleAgents(agent: Agent, words: string[]) {
         console.log("Pi does not have a local directory to scan. This command will fetch data from Pi's API in the future.");
         logWordCounts(Agent.Pi, getPiCount(words));
         break;
+    default:
+        console.error(`Unknown agent: ${agent}`);
+        break;
     }
 }

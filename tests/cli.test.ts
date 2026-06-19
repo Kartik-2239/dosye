@@ -2,13 +2,15 @@ import { describe, it, expect } from "vitest";
 import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
+import { mkdtempSync } from "fs";
+import { tmpdir } from "os";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const cli = resolve(root, "src/cli.ts");
 const tsx = resolve(root, "node_modules/.bin/tsx");
 
-function run(args: string[]) {
-    return spawnSync(tsx, [cli, ...args], { encoding: "utf8", cwd: root, timeout: 8000 });
+function run(args: string[], env?: NodeJS.ProcessEnv) {
+    return spawnSync(tsx, [cli, ...args], { encoding: "utf8", cwd: root, timeout: 8000, env: env ?? process.env });
 }
 
 describe("CLI argument handling", () => {
@@ -43,7 +45,13 @@ describe("CLI argument handling", () => {
     it("accepts multiple valid agents without a usage error", { timeout: 15000 }, () => {
         // Agents will look for history files and may find none — that's fine.
         // We only assert commander doesn't reject the invocation itself.
-        const { stderr } = run(["copilot", "claudecode", "--words", "fix"]);
+        // Use a hermetic temp HOME so agents find no real history dirs.
+        const tmp = mkdtempSync(`${tmpdir()}/dosye-test-`);
+        const { stderr } = run(["copilot", "claudecode", "--words", "fix"], {
+            ...process.env,
+            HOME: tmp,
+            USERPROFILE: tmp,
+        });
         expect(stderr).not.toContain("invalid for argument");
         expect(stderr).not.toContain("missing required argument");
     });

@@ -2,7 +2,7 @@ import os from "os";
 import path from "path";
 import fs from "fs";
 import type { wordData } from "./../types.js";
-import { findAllJsonlFiles, countWordOccurrences } from "./utils.js";
+import { findAllJsonlFiles, initCountMap, countWordsInText } from "./utils.js";
 
 function piPath(){
     if (os.platform() === "win32") {
@@ -16,8 +16,7 @@ function piPath(){
 export function getPiCount(wordlist: string[]): Record<string, wordData[]> | undefined {
     const piDir = piPath();
     const jsonlPaths: string[] = [];
-    const countMap: Record<string, wordData[]> = {};
-    wordlist.forEach(word => countMap[word] = []);
+    const countMap = initCountMap(wordlist);
      if (!fs.existsSync(piDir)) {
         console.error("Pi directory not found. Make sure Pi is installed and has been run at least once.");
         return;
@@ -32,14 +31,8 @@ export function getPiCount(wordlist: string[]): Record<string, wordData[]> | und
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.message && parsed?.message.role === "user") {
                     const text: {type: string, text: string}[] = parsed.message.content ?? [];
-                    wordlist.forEach(word => {
-                        if (countMap[word] !== undefined) {
-                            countMap[word].push({
-                                count: countWordOccurrences(text.map(t => t.text).join(" "), word),
-                                time: Date.parse(parsed.timestamp) ?? 0
-                            });
-                        }
-                    });
+                    const time = Date.parse(parsed.timestamp);
+                    countWordsInText(text.map(t => t.text).join(" "), wordlist, countMap, Number.isNaN(time) ? 0 : time);
                 }
             } catch {
                 

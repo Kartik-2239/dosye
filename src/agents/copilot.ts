@@ -42,7 +42,8 @@ export function getCopilotCount(wordlist: string[]): Record<string, wordData[]> 
                 const parsed = JSON.parse(jsonFile.trim());
                 if (parsed?.type === "user.message") {
                     const text: string = parsed.data.content ?? "";
-                    countWordsInText(text, wordlist, countMap, Date.parse(parsed?.timestamp) ?? 0);
+                    const time = Date.parse(parsed?.timestamp);
+                    countWordsInText(text, wordlist, countMap, Number.isNaN(time) ? 0 : time);
                 }
             } catch {
                 
